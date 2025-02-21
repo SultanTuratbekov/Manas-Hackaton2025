@@ -49,7 +49,9 @@ const Header = () => {
             >
                 <div
                     onClick={() => router.push('/home')}
-                    className={'w-1/4 flex gap-5 justify-start items-center'}
+                    className={
+                        'w-1/4 flex cursor-pointer gap-5 justify-start items-center'
+                    }
                 >
                     <div className={'ml-5'}>
                         <img
@@ -84,6 +86,7 @@ const Header = () => {
                         className={
                             'cursor-pointer duration-300 md:hover:bg-slate-200 rounded-full p-2'
                         }
+                        onClick={() => router.push('/home/favorites')}
                     >
                         <Heart />
                     </div>
