@@ -65,7 +65,7 @@ const Header = () => {
                             type="text"
                             value={searchText}
                             onChange={handleText}
-                            className="w-full px-3 py-1 border rounded-[6px] focus:border-red-300 focus:outline-red-300"
+                            className="w-full px-3 pr-10 py-1 border rounded-[6px] focus:border-red-300 focus:outline-red-300"
                             placeholder="умный поиск"
                         />
                         <Search className="absolute right-[85px] top-1/2 -translate-y-1/2 text-slate-600" />
