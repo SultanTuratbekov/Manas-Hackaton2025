@@ -4,8 +4,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const languageTypes = [
-    { label: 'English', value: 'english' },
-    { label: 'German', value: 'german' },
+    { label: 'English only', value: 'english', langValue: 2 },
+    { label: 'German only', value: 'german', langValue: 1 },
+    { label: 'German & English', value: 'german&english', langValue: 4 },
+    { label: 'Other', value: 'other', langValue: 3 },
 ]
 
 export const CourseLanguage = () => {
@@ -14,38 +16,48 @@ export const CourseLanguage = () => {
     const filtersContainerRef = useRef(null)
     const params = useSearchParams()
 
-    // Handle selecting languages and updating URL params
-    const handleSelectLanguage = (value) => {
+    // Handle selecting/unselecting languages and updating URL params
+    const handleSelectLanguage = (value, langValue) => {
         setSelectedLanguages((prev) => {
-            const newCourseLanguage = prev.includes(value)
-                ? prev.filter((item) => item !== value)
+            const isSelected = prev.includes(value)
+            const updatedLanguages = isSelected
+                ? prev.filter((lang) => lang !== value)
                 : [...prev, value]
 
             const url = new URL(window.location)
-            const params = new URLSearchParams(url.search)
+            const searchParams = new URLSearchParams(url.search)
 
-            if (newCourseLanguage.length === 0) {
-                params.delete('courseLanguage')
+            const existingLangValues = searchParams.getAll('lang[]').map(Number)
+
+            if (isSelected) {
+                // Remove langValue from URL
+                const updatedLangValues = existingLangValues.filter(
+                    (v) => v !== langValue
+                )
+                searchParams.delete('lang[]')
+                updatedLangValues.forEach((v) =>
+                    searchParams.append('lang[]', v)
+                )
             } else {
-                params.set('courseLanguage', newCourseLanguage.join(','))
+                // Add langValue to URL if not already present
+                if (!existingLangValues.includes(langValue)) {
+                    searchParams.append('lang[]', langValue)
+                }
             }
 
             window.history.pushState(
                 {},
                 '',
-                `${url.pathname}?${params.toString()}`
+                `${url.pathname}?${searchParams.toString()}`
             )
-
-            return newCourseLanguage
+            return updatedLanguages
         })
     }
 
-    // Toggle the filter dropdown visibility
-    const toggleFilter = () => {
-        setIsOpen(!isOpen)
-    }
+    // Toggle dropdown visibility
+    const toggleFilter = () => setIsOpen((prev) => !prev)
 
-    // Close the dropdown if clicking outside
+    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -57,21 +69,20 @@ export const CourseLanguage = () => {
         }
 
         document.addEventListener('mousedown', handleClickOutside)
-
-        return () => {
+        return () =>
             document.removeEventListener('mousedown', handleClickOutside)
-        }
     }, [])
 
-    // Sync selected languages with URL params on page load
+    // Sync selected languages with URL on page load
     useEffect(() => {
         const url = new URL(window.location)
-        const params = new URLSearchParams(url.search)
-        const courseLanguageParam = params.get('courseLanguage')
+        const langParams = url.searchParams.getAll('lang[]').map(Number)
 
-        if (courseLanguageParam) {
-            setSelectedLanguages(courseLanguageParam.split(','))
-        }
+        const selected = languageTypes
+            .filter(({ langValue }) => langParams.includes(langValue))
+            .map(({ value }) => value)
+
+        setSelectedLanguages(selected)
     }, [params])
 
     return (
@@ -84,13 +95,13 @@ export const CourseLanguage = () => {
                 >
                     {selectedLanguages.length > 0
                         ? `${selectedLanguages.length} выбрано`
-                        : 'Выберите тип курса'}
+                        : 'Выберите язык'}
                     <ChevronDown size={20} />
                 </button>
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {languageTypes.map(({ label, value }) => (
+                        {languageTypes.map(({ label, value, langValue }) => (
                             <label
                                 key={value}
                                 className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -98,7 +109,9 @@ export const CourseLanguage = () => {
                                 <input
                                     type="checkbox"
                                     checked={selectedLanguages.includes(value)}
-                                    onChange={() => handleSelectLanguage(value)}
+                                    onChange={() =>
+                                        handleSelectLanguage(value, langValue)
+                                    }
                                     className="mr-2"
                                 />
                                 {label}
