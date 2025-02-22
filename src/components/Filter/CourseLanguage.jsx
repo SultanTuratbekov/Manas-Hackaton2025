@@ -1,3 +1,4 @@
+'use client'
 import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'

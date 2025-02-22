@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils'
 import Header from '@/components/Header'
 
 export default function RootLayout({ children }) {

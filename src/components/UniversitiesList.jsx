@@ -2,17 +2,6 @@ import React from 'react'
 import { HeartIcon, HeartOff } from 'lucide-react'
 
 const UniversitiesList = ({ data }) => {
-    const link = `https://www.youtube.com`
-
-    const handleListClick = (id) => {
-        window.location.href = link
-    }
-
-    const handleClickHeart = (event, id) => {
-        event.stopPropagation()
-        console.log(id)
-    }
-
     return (
         <div>
             <div className="flex flex-col gap-6 my-6">
@@ -20,7 +9,7 @@ const UniversitiesList = ({ data }) => {
                     <div
                         key={item.id}
                         className="relative bg-white rounded-[8px] p-5 flex justify-between items-start cursor-pointer outline-white hover:outline hover:outline-[10px] duration-300 group"
-                        onClick={() => handleListClick(item.id)}
+                        onClick={() => null}
                     >
                         <div className="w-1/5">
                             <img
@@ -55,9 +44,6 @@ const UniversitiesList = ({ data }) => {
                         <button
                             className={
                                 'absolute top-3 right-3 hover:bg-slate-300 duration-500 p-2 rounded-full'
-                            }
-                            onClick={(event) =>
-                                handleClickHeart(event, item.id)
                             }
                         >
                             <HeartOff />

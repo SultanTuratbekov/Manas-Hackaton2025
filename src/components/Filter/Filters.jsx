@@ -35,7 +35,6 @@ const Filters = () => {
                     />
                 </h1>
 
-                {/* Локация */}
                 <div className={'space-y-5'}>
                     <CourceType />
                     <FieldOfStudy />

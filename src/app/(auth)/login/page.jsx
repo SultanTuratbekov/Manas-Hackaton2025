@@ -36,7 +36,7 @@ export default function LoginPage() {
                     className={
                         'text-sm flex items-center gap-2 md:hover:text-foreground cursor-pointer duration-500 justify-items-start absolute top-3 left-3'
                     }
-                    onClick={() => router.replace('/home')}
+                    onClick={() => router.replace('/')}
                 >
                     <Home className={'size-4'} /> <span>на главную</span>
                 </span>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                 <span>
                     Нет аккаунта?{' '}
                     <button
-                        onClick={() => router.push('/auth/register')}
+                        onClick={() => router.push('/register')}
                         className={
                             'mt-2 underline text-foreground md:hover:text-blue-400 duration-500'
                         }

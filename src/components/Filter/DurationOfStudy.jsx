@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Slider from 'react-slider'
 
 const durationOptions = [
     '1 неделя',
@@ -29,42 +28,50 @@ const DurationSlider = () => {
         router.push(`?${params.toString()}`, { scroll: false })
     }, [duration, router, searchParams])
 
+    const handleMinChange = (e) => {
+        const value = Math.min(Number(e.target.value), duration[1] - 1)
+        setDuration([value, duration[1]])
+    }
+
+    const handleMaxChange = (e) => {
+        const value = Math.max(Number(e.target.value), duration[0] + 1)
+        setDuration([duration[0], value])
+    }
+
     return (
         <div className="relative mb-4">
             <label className="block mb-2 font-medium">Период обучения</label>
-            <Slider
-                className="slider"
-                value={duration}
-                onChange={setDuration}
-                min={1}
-                max={9}
-                step={1}
-                renderTrack={(props) => (
-                    <div
-                        {...props}
-                        style={{
-                            ...props.style,
-                            backgroundColor: 'gray',
-                            height: '6px',
-                            borderRadius: '4px',
-                        }}
-                    />
-                )}
-                renderThumb={(props) => (
-                    <div
-                        {...props}
-                        style={{
-                            ...props.style,
-                            backgroundColor: '#1D4ED8',
-                            borderRadius: '50%',
-                            width: '20px',
-                            height: '20px',
-                            top: '50%',
-                            transform: 'translateY(-40%)',
-                        }}
-                    />
-                )}
-            />
+            <div className="flex justify-between gap-5">
+                <div>
+                    <label className="block text-sm">Минимум</label>
+                    <select
+                        value={duration[0]}
+                        onChange={handleMinChange}
+                        className="border rounded px-3 py-2"
+                    >
+                        {durationOptions.map((option, index) => (
+                            <option key={index} value={index + 1}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className={''}>
+                    <label className="block text-sm">Максимум</label>
+                    <select
+                        value={duration[1]}
+                        onChange={handleMaxChange}
+                        className="border rounded px-3 py-2"
+                    >
+                        {durationOptions.map((option, index) => (
+                            <option key={index} value={index + 1}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             <div className="flex justify-between text-sm mt-5">
                 <span>{durationOptions[duration[0] - 1]}</span>
                 <span>{durationOptions[duration[1] - 1]}</span>

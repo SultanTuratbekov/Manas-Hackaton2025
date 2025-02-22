@@ -1,3 +1,4 @@
+'use client'
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -70,7 +71,7 @@ export const FieldOfStudy = () => {
             <div className="relative mb-4">
                 <label className="block mb-2 font-medium">Направление</label>
                 <button
-                    onClick={toggleFilter}
+                    onClick={() => toggleFilter()}
                     className="w-full border rounded-lg px-4 py-2 flex justify-between items-center"
                 >
                     {selectedFieldOfStudy

@@ -1,9 +1,6 @@
-import { Inter, Montserrat } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import Filters from '@/components/Filter/Filters'
 
 const montserrat = Montserrat({
     subsets: ['latin'],

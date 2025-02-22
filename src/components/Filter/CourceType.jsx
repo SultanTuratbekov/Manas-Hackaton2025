@@ -1,3 +1,4 @@
+'use client'
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -106,9 +107,7 @@ export const CourceType = () => {
                                 <input
                                     type="checkbox"
                                     checked={selectedCourseType.includes(value)}
-                                    onChange={() =>
-                                        handleSelectCourseType(value)
-                                    }
+                                    onChange={handleSelectCourseType}
                                     className="mr-2"
                                 />
                                 {label}

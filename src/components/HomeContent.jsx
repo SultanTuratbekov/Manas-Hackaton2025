@@ -1,18 +1,17 @@
 'use client'
-import UniversitiesList from '@/components/UniversitiesList'
-
-import { universityList } from '@/data/universityList'
 import Filters from '@/components/Filter/Filters'
+import { universityList } from '@/data/universityList'
+import UniversitiesList from '@/components/UniversitiesList'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { api } from '@/service/axios'
 
-export default function Home() {
+export const HomeContent = () => {
     const searchParams = useSearchParams()
     const [data, setData] = useState([])
 
     const fetchData = async () => {
-        const response = await api.get(`?limit=1`)
+        const response = await api.get(`search?limit=10`)
         if (response) {
             console.log('response: ', response)
         } else {
@@ -21,10 +20,9 @@ export default function Home() {
     }
 
     useEffect(() => {
-        // Получаем все query параметры
         const params = new URLSearchParams(searchParams.toString())
         console.log('All query parameters:', params.toString())
-        // fetchData()
+        fetchData()
     }, [searchParams])
     return (
         <div className={'flex gap-10 items-start justify-betweens'}>
