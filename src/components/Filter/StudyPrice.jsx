@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const tuitionFees = [
     {
@@ -38,16 +39,26 @@ export const StudyPrice = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedTuitionFees, setSelectedTuitionFees] = useState(null)
     const filtersContainerRef = useRef(null)
+    const searchParams = useSearchParams()
 
+    // Handle selection and update URL parameter
     const handleSelectTuitionFees = (value) => {
-        setSelectedFieldOfStudy(value)
+        setSelectedTuitionFees(value)
+
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+
+        if (!value) {
+            params.delete('tuitionFees')
+        } else {
+            params.set('tuitionFees', value)
+        }
+
+        window.history.pushState({}, '', `${url.pathname}?${params.toString()}`)
         setIsOpen(false)
     }
 
-    const toggleFilter = () => {
-        setIsOpen(!isOpen)
-    }
-
+    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -59,11 +70,22 @@ export const StudyPrice = () => {
         }
 
         document.addEventListener('mousedown', handleClickOutside)
-
-        return () => {
+        return () =>
             document.removeEventListener('mousedown', handleClickOutside)
-        }
     }, [])
+
+    // Set selected value from URL on mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const tuitionParam = params.get('tuitionFees')
+
+        if (
+            tuitionParam &&
+            tuitionFees.some((fee) => fee.value === tuitionParam)
+        ) {
+            setSelectedTuitionFees(tuitionParam)
+        }
+    }, [searchParams])
 
     return (
         <div ref={filtersContainerRef}>
@@ -72,11 +94,13 @@ export const StudyPrice = () => {
                     Плата за обучение
                 </label>
                 <button
-                    onClick={toggleFilter}
+                    onClick={() => setIsOpen((prev) => !prev)}
                     className="w-full border rounded-lg px-4 py-2 flex justify-between items-center"
                 >
                     {selectedTuitionFees
-                        ? selectedTuitionFees
+                        ? tuitionFees.find(
+                              (fee) => fee.value === selectedTuitionFees
+                          )?.label
                         : 'Выберите цену за обучение'}
                     <ChevronDown size={20} />
                 </button>
@@ -86,8 +110,12 @@ export const StudyPrice = () => {
                         {tuitionFees.map(({ label, value, count }) => (
                             <label
                                 key={value}
-                                className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleSelectTuitionFees(label)}
+                                className={`flex items-center px-4 py-2 cursor-pointer ${
+                                    selectedTuitionFees === value
+                                        ? 'bg-gray-200'
+                                        : 'hover:bg-gray-100'
+                                }`}
+                                onClick={() => handleSelectTuitionFees(value)}
                             >
                                 {label}
                                 <span className="ml-auto text-gray-500">

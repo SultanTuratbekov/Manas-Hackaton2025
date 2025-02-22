@@ -1,35 +1,50 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const languageTypes = [
     { label: 'English', value: 'english' },
-    { label: 'Russian', value: 'russian' },
     { label: 'German', value: 'german' },
-    { label: 'French', value: 'french' },
-    { label: 'Spanish', value: 'spanish' },
-    { label: 'Italian', value: 'italian' },
-    { label: 'Chinese', value: 'chinese' },
-    { label: 'Japanese', value: 'japanese' },
-    { label: 'Korean', value: 'korean' },
 ]
 
 export const CourseLanguage = () => {
     const [selectedLanguages, setSelectedLanguages] = useState([])
     const [isOpen, setIsOpen] = useState(false)
     const filtersContainerRef = useRef(null)
+    const params = useSearchParams()
 
+    // Handle selecting languages and updating URL params
     const handleSelectLanguage = (value) => {
-        setSelectedLanguages((prev) =>
-            prev.includes(value)
+        setSelectedLanguages((prev) => {
+            const newCourseLanguage = prev.includes(value)
                 ? prev.filter((item) => item !== value)
                 : [...prev, value]
-        )
+
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
+
+            if (newCourseLanguage.length === 0) {
+                params.delete('courseLanguage')
+            } else {
+                params.set('courseLanguage', newCourseLanguage.join(','))
+            }
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+
+            return newCourseLanguage
+        })
     }
 
+    // Toggle the filter dropdown visibility
     const toggleFilter = () => {
         setIsOpen(!isOpen)
     }
 
+    // Close the dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -46,6 +61,18 @@ export const CourseLanguage = () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [])
+
+    // Sync selected languages with URL params on page load
+    useEffect(() => {
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+        const courseLanguageParam = params.get('courseLanguage')
+
+        if (courseLanguageParam) {
+            setSelectedLanguages(courseLanguageParam.split(','))
+        }
+    }, [params])
+
     return (
         <div ref={filtersContainerRef}>
             <div className="relative mb-4">
@@ -62,7 +89,7 @@ export const CourseLanguage = () => {
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {languageTypes.map(({ label, value, count }) => (
+                        {languageTypes.map(({ label, value }) => (
                             <label
                                 key={value}
                                 className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"

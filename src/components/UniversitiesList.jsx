@@ -1,13 +1,11 @@
-'use client'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { HeartIcon, HeartOff } from 'lucide-react'
 
 const UniversitiesList = ({ data }) => {
-    const router = useRouter()
+    const link = `https://www.youtube.com`
 
     const handleListClick = (id) => {
-        router.push(`/home/${id}`)
+        window.location.href = link
     }
 
     const handleClickHeart = (event, id) => {

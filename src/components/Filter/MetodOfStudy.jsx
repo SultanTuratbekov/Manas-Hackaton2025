@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const learningMethods = [
     { label: 'Online', value: 'online', count: 1500 },
@@ -18,19 +19,40 @@ export const MetodOfStudy = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedMetodsOfStudy, setSelectedMetodsOfStudy] = useState([])
     const filtersContainerRef = useRef(null)
+    const params = useSearchParams()
 
+    // Handle selecting methods of study and update URL params
     const handleSelectMetodOfStudy = (value) => {
-        setSelectedMetodsOfStudy((prev) =>
-            prev.includes(value)
+        setSelectedMetodsOfStudy((prev) => {
+            const newMethodOfStudy = prev.includes(value)
                 ? prev.filter((item) => item !== value)
                 : [...prev, value]
-        )
+
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
+
+            if (newMethodOfStudy.length === 0) {
+                params.delete('methodOfStudy')
+            } else {
+                params.set('methodOfStudy', newMethodOfStudy.join(','))
+            }
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+
+            return newMethodOfStudy
+        })
     }
 
+    // Toggle the filter dropdown visibility
     const toggleFilter = () => {
         setIsOpen(!isOpen)
     }
 
+    // Close the dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -47,6 +69,17 @@ export const MetodOfStudy = () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [])
+
+    // Sync selected filters with URL params on page load
+    useEffect(() => {
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+        const methodOfStudyParam = params.get('methodOfStudy')
+
+        if (methodOfStudyParam) {
+            setSelectedMetodsOfStudy(methodOfStudyParam.split(','))
+        }
+    }, [params])
 
     return (
         <div ref={filtersContainerRef}>

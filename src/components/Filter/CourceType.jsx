@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const courseTypes = [
     { label: "Bachelor's degree", value: 'bachelor', count: 342 },
@@ -19,19 +20,40 @@ export const CourceType = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedCourseType, setSelectedCourseType] = useState([])
     const filtersContainerRef = useRef(null)
+    const params = useSearchParams()
 
+    // Handle selecting/deselecting course types and updating URL params
     const handleSelectCourseType = (value) => {
-        setSelectedCourseType((prev) =>
-            prev.includes(value)
+        setSelectedCourseType((prev) => {
+            const newCourceType = prev.includes(value)
                 ? prev.filter((item) => item !== value)
                 : [...prev, value]
-        )
+
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
+
+            if (newCourceType.length === 0) {
+                params.delete('courceType')
+            } else {
+                params.set('courceType', newCourceType.join(','))
+            }
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+
+            return newCourceType
+        })
     }
 
+    // Toggle the filter dropdown visibility
     const toggleFilter = () => {
         setIsOpen(!isOpen)
     }
 
+    // Close the dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -48,6 +70,17 @@ export const CourceType = () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [])
+
+    // Sync selected course types with URL params on page load
+    useEffect(() => {
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+        const courseTypeParam = params.get('courceType')
+
+        if (courseTypeParam) {
+            setSelectedCourseType(courseTypeParam.split(','))
+        }
+    }, [params])
 
     return (
         <div ref={filtersContainerRef}>

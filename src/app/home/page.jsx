@@ -1,9 +1,31 @@
+'use client'
 import UniversitiesList from '@/components/UniversitiesList'
+
 import { universityList } from '@/data/universityList'
-import Header from '@/components/Header'
 import Filters from '@/components/Filter/Filters'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { api } from '@/service/axios'
 
 export default function Home() {
+    const searchParams = useSearchParams()
+    const [data, setData] = useState([])
+
+    const fetchData = async () => {
+        const response = await api.get(`?limit=1`)
+        if (response) {
+            console.log('response: ', response)
+        } else {
+            console.log('No data')
+        }
+    }
+
+    useEffect(() => {
+        // Получаем все query параметры
+        const params = new URLSearchParams(searchParams.toString())
+        console.log('All query parameters:', params.toString())
+        // fetchData()
+    }, [searchParams])
     return (
         <div className={'flex gap-10 items-start justify-betweens'}>
             <Filters />
@@ -17,23 +39,6 @@ export default function Home() {
                             Количество найденных ВУЗов :{' '}
                         </span>
                         <span>{universityList.length}</span>
-                    </div>
-                    <div>
-                        {/* <div>
-                        <Select>
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Сортировать" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="apple">По возрастанию цены</SelectItem>
-                                    <SelectItem value="banana">
-                                        По убыванию цены
-                                    </SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div> */}
                     </div>
                 </div>
                 <div>

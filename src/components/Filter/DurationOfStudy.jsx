@@ -1,22 +1,33 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Slider from 'react-slider'
 
-const DurationSlider = () => {
-    const [duration, setDuration] = useState([1, 48]) // Значения по умолчанию: 1
+const durationOptions = [
+    '1 неделя',
+    '2 недели',
+    '1 месяц',
+    '3 месяца',
+    '6 месяцев',
+    '1 год',
+    '2 года',
+    '3 года',
+    '4 года',
+]
 
-    const formatDuration = (value) => {
-        if (value < 12) {
-            return `${value} мес`
-        } else {
-            const years = Math.floor(value / 12)
-            const months = value % 12
-            return months === 0
-                ? `${years} год`
-                : years === 1
-                  ? `${years} год ${months} мес`
-                  : `${years} года ${months} мес`
-        }
-    }
+const DurationSlider = () => {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const initialDur = searchParams.get('dur')?.split('-').map(Number) || [1, 9]
+    const [duration, setDuration] = useState(initialDur)
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('dur', `${duration[0]}-${duration[1]}`)
+        router.push(`?${params.toString()}`, { scroll: false })
+    }, [duration, router, searchParams])
 
     return (
         <div className="relative mb-4">
@@ -25,10 +36,10 @@ const DurationSlider = () => {
                 className="slider"
                 value={duration}
                 onChange={setDuration}
-                min={1} // минимальный месяц
-                max={48} // максимальный 4 года (48 месяцев)
+                min={1}
+                max={9}
                 step={1}
-                renderTrack={(props, state) => (
+                renderTrack={(props) => (
                     <div
                         {...props}
                         style={{
@@ -39,7 +50,7 @@ const DurationSlider = () => {
                         }}
                     />
                 )}
-                renderThumb={(props, state) => (
+                renderThumb={(props) => (
                     <div
                         {...props}
                         style={{
@@ -48,15 +59,15 @@ const DurationSlider = () => {
                             borderRadius: '50%',
                             width: '20px',
                             height: '20px',
-                            top: '50%', // Поднятие круга
-                            transform: 'translateY(-40%)', // Центрирует круг по вертикали
+                            top: '50%',
+                            transform: 'translateY(-40%)',
                         }}
                     />
                 )}
             />
             <div className="flex justify-between text-sm mt-5">
-                <span>{formatDuration(duration[0])}</span>
-                <span>{formatDuration(duration[1])}</span>
+                <span>{durationOptions[duration[0] - 1]}</span>
+                <span>{durationOptions[duration[1] - 1]}</span>
             </div>
         </div>
     )

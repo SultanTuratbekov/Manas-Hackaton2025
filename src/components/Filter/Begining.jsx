@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const startSemesters = [
     { label: 'Летний семестр', value: 'summer', count: 350 },
@@ -13,19 +14,40 @@ export const Begining = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedBegining, setSelectedBegining] = useState([])
     const filtersContainerRef = useRef(null)
+    const searchParams = useSearchParams()
 
+    // Handle selecting/deselecting start semesters and updating URL params
     const handleSelectBegining = (value) => {
-        setSelectedBegining((prev) =>
-            prev.includes(value)
+        setSelectedBegining((prev) => {
+            const newBegining = prev.includes(value)
                 ? prev.filter((item) => item !== value)
                 : [...prev, value]
-        )
+
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
+
+            if (newBegining.length === 0) {
+                params.delete('begining')
+            } else {
+                params.set('begining', newBegining.join(','))
+            }
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+
+            return newBegining
+        })
     }
 
+    // Toggle the filter dropdown visibility
     const toggleFilter = () => {
         setIsOpen(!isOpen)
     }
 
+    // Close the dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -42,6 +64,17 @@ export const Begining = () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [])
+
+    // Sync selected start semesters with URL params on page load
+    useEffect(() => {
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+        const beginingParam = params.get('begining')
+
+        if (beginingParam) {
+            setSelectedBegining(beginingParam.split(','))
+        }
+    }, [searchParams])
 
     return (
         <div ref={filtersContainerRef}>

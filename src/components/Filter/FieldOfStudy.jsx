@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const studyFields = [
     { label: 'Програмная инженерия', value: 'programming', count: 342 },
@@ -11,16 +12,31 @@ export const FieldOfStudy = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState(null)
     const filtersContainerRef = useRef(null)
+    const params = useSearchParams()
 
+    // Handle selecting field of study and updating URL params
     const handleSelectFieldOfStudy = (value) => {
         setSelectedFieldOfStudy(value)
+
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+
+        if (!value) {
+            params.delete('fieldOfStudy')
+        } else {
+            params.set('fieldOfStudy', value)
+        }
+
+        window.history.pushState({}, '', `${url.pathname}?${params.toString()}`)
         setIsOpen(false)
     }
 
+    // Toggle the filter dropdown visibility
     const toggleFilter = () => {
         setIsOpen(!isOpen)
     }
 
+    // Close the dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -38,10 +54,21 @@ export const FieldOfStudy = () => {
         }
     }, [])
 
+    // Sync selected field of study with URL params on page load
+    useEffect(() => {
+        const url = new URL(window.location)
+        const params = new URLSearchParams(url.search)
+        const fieldOfStudyParam = params.get('fieldOfStudy')
+
+        if (fieldOfStudyParam) {
+            setSelectedFieldOfStudy(fieldOfStudyParam)
+        }
+    }, [params])
+
     return (
         <div ref={filtersContainerRef}>
             <div className="relative mb-4">
-                <label className="block mb-2 font-medium">Тип курса</label>
+                <label className="block mb-2 font-medium">Направление</label>
                 <button
                     onClick={toggleFilter}
                     className="w-full border rounded-lg px-4 py-2 flex justify-between items-center"

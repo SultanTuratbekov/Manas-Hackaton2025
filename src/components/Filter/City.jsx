@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 const europeanCities = [
     { label: 'Berlin', value: 'berlin', count: 1000000 },
@@ -24,7 +25,6 @@ const europeanCities = [
     { label: 'Frankfurt', value: 'frankfurt', count: 750000 },
     { label: 'Munich', value: 'munich', count: 1500000 },
     { label: 'Hamburg', value: 'hamburg', count: 1800000 },
-    { label: 'Vienna', value: 'vienna', count: 1900000 },
     { label: 'Belgrade', value: 'belgrade', count: 1200000 },
     { label: 'Zagreb', value: 'zagreb', count: 800000 },
     { label: 'Athens', value: 'athens', count: 3200000 },
@@ -40,17 +40,34 @@ export const City = () => {
     const [selectedCities, setSelectedCities] = useState([])
     const [searchQuery, setSearchQuery] = useState('')
     const filtersContainerRef = useRef(null)
+    const searchParams = useSearchParams()
 
     const handleSelectCities = (value) => {
-        setSelectedCities((prev) =>
-            prev.includes(value)
+        setSelectedCities((prev) => {
+            const updatedCities = prev.includes(value)
                 ? prev.filter((item) => item !== value)
                 : [...prev, value]
-        )
+
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
+
+            if (updatedCities.length === 0) {
+                params.delete('city')
+            } else {
+                params.set('city', updatedCities.join(','))
+            }
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+            return updatedCities
+        })
     }
 
     const toggleFilter = () => {
-        setIsOpen(!isOpen)
+        setIsOpen((prev) => !prev)
     }
 
     const handleSearchChange = (event) => {
@@ -61,6 +78,7 @@ export const City = () => {
         city.label.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
+    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -72,11 +90,24 @@ export const City = () => {
         }
 
         document.addEventListener('mousedown', handleClickOutside)
-
-        return () => {
+        return () =>
             document.removeEventListener('mousedown', handleClickOutside)
-        }
     }, [])
+
+    // Read the 'city' parameter from the URL on mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const cityParam = params.get('city')
+
+        if (cityParam) {
+            const citiesFromURL = cityParam
+                .split(',')
+                .filter((value) =>
+                    europeanCities.some((city) => city.value === value)
+                )
+            setSelectedCities(citiesFromURL)
+        }
+    }, [searchParams])
 
     return (
         <div ref={filtersContainerRef}>
@@ -94,7 +125,7 @@ export const City = () => {
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {/* Поиск */}
+                        {/* Search input */}
                         <div className="p-2">
                             <input
                                 type="text"
@@ -105,28 +136,28 @@ export const City = () => {
                             />
                         </div>
 
-                        {/* Список городов */}
-                        {filteredCities.map(
-                            ({ label, value, count }, index) => (
-                                <label
-                                    key={index}
-                                    className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCities.includes(value)}
-                                        onChange={() =>
-                                            handleSelectCities(value)
-                                        }
-                                        className="mr-2"
-                                    />
-                                    {label}
-                                    <span className="ml-auto text-gray-500">
-                                        ({count})
-                                    </span>
-                                </label>
-                            )
-                        )}
+                        {/* Cities list */}
+                        {filteredCities.map(({ label, value, count }) => (
+                            <label
+                                key={value}
+                                className={`flex items-center px-4 py-2 cursor-pointer ${
+                                    selectedCities.includes(value)
+                                        ? 'bg-gray-200'
+                                        : 'hover:bg-gray-100'
+                                }`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={selectedCities.includes(value)}
+                                    onChange={() => handleSelectCities(value)}
+                                    className="mr-2"
+                                />
+                                {label}
+                                <span className="ml-auto text-gray-500">
+                                    ({count})
+                                </span>
+                            </label>
+                        ))}
                     </div>
                 )}
             </div>
