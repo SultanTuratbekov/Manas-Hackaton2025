@@ -4,36 +4,49 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const europeanCities = [
-    { label: 'Berlin', value: 'berlin', count: 1000000 },
-    { label: 'Paris', value: 'paris', count: 2200000 },
-    { label: 'London', value: 'london', count: 8900000 },
-    { label: 'Rome', value: 'rome', count: 2800000 },
-    { label: 'Madrid', value: 'madrid', count: 3200000 },
-    { label: 'Vienna', value: 'vienna', count: 1900000 },
-    { label: 'Amsterdam', value: 'amsterdam', count: 870000 },
-    { label: 'Barcelona', value: 'barcelona', count: 1600000 },
-    { label: 'Lisbon', value: 'lisbon', count: 550000 },
-    { label: 'Copenhagen', value: 'copenhagen', count: 800000 },
-    { label: 'Stockholm', value: 'stockholm', count: 975000 },
-    { label: 'Oslo', value: 'oslo', count: 700000 },
-    { label: 'Helsinki', value: 'helsinki', count: 650000 },
-    { label: 'Budapest', value: 'budapest', count: 1750000 },
-    { label: 'Prague', value: 'prague', count: 1300000 },
-    { label: 'Warsaw', value: 'warsaw', count: 1800000 },
-    { label: 'Brussels', value: 'brussels', count: 1150000 },
-    { label: 'Zurich', value: 'zurich', count: 430000 },
-    { label: 'Geneva', value: 'geneva', count: 200000 },
-    { label: 'Frankfurt', value: 'frankfurt', count: 750000 },
-    { label: 'Munich', value: 'munich', count: 1500000 },
-    { label: 'Hamburg', value: 'hamburg', count: 1800000 },
-    { label: 'Belgrade', value: 'belgrade', count: 1200000 },
-    { label: 'Zagreb', value: 'zagreb', count: 800000 },
-    { label: 'Athens', value: 'athens', count: 3200000 },
-    { label: 'Ljubljana', value: 'ljubljana', count: 300000 },
-    { label: 'Bucharest', value: 'bucharest', count: 2000000 },
-    { label: 'Sofia', value: 'sofia', count: 1300000 },
-    { label: 'Tallinn', value: 'tallinn', count: 450000 },
-    { label: 'Vilnius', value: 'vilnius', count: 600000 },
+    { label: 'Bayreuth' },
+    { label: 'Berlin' },
+    { label: 'Bernburg / Saale' },
+    { label: 'Bingen am Rhein' },
+    { label: 'Bonn' },
+    { label: 'Cologne' },
+    { label: 'Cotibus' },
+    { label: 'Dortmund' },
+    { label: 'Dresden' },
+    { label: 'Eberswalde' },
+    { label: 'Frankfurt am Main' },
+    { label: 'Freiburg im Breisgau' },
+    { label: 'Freising' },
+    { label: 'Fulda' },
+    { label: 'Geisenheim' },
+    { label: 'Gießen' },
+    { label: 'Göttingen' },
+    { label: 'Hamburg' },
+    { label: 'Hanover' },
+    { label: 'Höxter' },
+    { label: 'Kiel' },
+    { label: 'Kulmbach' },
+    { label: 'Landau in der Pfalz' },
+    { label: 'Leipzig' },
+    { label: 'Lübeck' },
+    { label: 'Lüneburg' },
+    { label: 'Munich' },
+    { label: 'Neubrandenburg' },
+    { label: 'Neustadt an der Weinstraße' },
+    { label: 'Nürtingen' },
+    { label: 'Offenburg' },
+    { label: 'Osnabrück' },
+    { label: 'Potsdam' },
+    { label: 'Rosenheim' },
+    { label: 'Singapore' },
+    { label: 'Straßsund' },
+    { label: 'Stuttgart' },
+    { label: 'Tharandt' },
+    { label: 'Trier' },
+    { label: 'Weidenbach' },
+    { label: 'Weimar' },
+    { label: 'Witzenhausen' },
+    { label: 'Zittau' },
 ]
 
 export const City = () => {
@@ -51,12 +64,11 @@ export const City = () => {
 
             const url = new URL(window.location)
             const params = new URLSearchParams(url.search)
+            params.delete('cit[]')
 
-            if (updatedCities.length === 0) {
-                params.delete('city')
-            } else {
-                params.set('city', updatedCities.join(','))
-            }
+            updatedCities.forEach((city) => {
+                params.append('cit[]', city)
+            })
 
             window.history.pushState(
                 {},
@@ -79,7 +91,6 @@ export const City = () => {
         city.label.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -95,19 +106,14 @@ export const City = () => {
             document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // Read the 'city' parameter from the URL on mount
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
-        const cityParam = params.get('city')
-
-        if (cityParam) {
-            const citiesFromURL = cityParam
-                .split(',')
-                .filter((value) =>
-                    europeanCities.some((city) => city.value === value)
-                )
-            setSelectedCities(citiesFromURL)
-        }
+        const citiesFromURL = params.getAll('cit[]')
+        setSelectedCities(
+            citiesFromURL.filter((value) =>
+                europeanCities.some((city) => city.label === value)
+            )
+        )
     }, [searchParams])
 
     return (
@@ -126,7 +132,6 @@ export const City = () => {
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {/* Search input */}
                         <div className="p-2">
                             <input
                                 type="text"
@@ -136,27 +141,22 @@ export const City = () => {
                                 className="w-full px-3 py-2 border rounded-lg"
                             />
                         </div>
-
-                        {/* Cities list */}
-                        {filteredCities.map(({ label, value, count }) => (
+                        {filteredCities.map(({ label }) => (
                             <label
-                                key={value}
+                                key={label}
                                 className={`flex items-center px-4 py-2 cursor-pointer ${
-                                    selectedCities.includes(value)
+                                    selectedCities.includes(label)
                                         ? 'bg-gray-200'
                                         : 'hover:bg-gray-100'
                                 }`}
                             >
                                 <input
                                     type="checkbox"
-                                    checked={selectedCities.includes(value)}
-                                    onChange={() => handleSelectCities(value)}
+                                    checked={selectedCities.includes(label)}
+                                    onChange={() => handleSelectCities(label)}
                                     className="mr-2"
                                 />
                                 {label}
-                                <span className="ml-auto text-gray-500">
-                                    ({count})
-                                </span>
                             </label>
                         ))}
                     </div>

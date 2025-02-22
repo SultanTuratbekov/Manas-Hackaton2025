@@ -4,16 +4,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const learningMethods = [
-    { label: 'Online', value: 'online', count: 1500 },
-    { label: 'Offline', value: 'offline', count: 850 },
-    { label: 'Hybrid (50% Online, 50% Offline)', value: 'hybrid', count: 1200 },
-    {
-        label: 'Blended (Mostly Online with Some Offline)',
-        value: 'blended',
-        count: 1000,
-    },
-    { label: 'Self-paced Online', value: 'self-paced', count: 900 },
-    { label: 'In-person (Classroom)', value: 'in-person', count: 650 },
+    { label: 'Fully on-site', value: '7' },
+    { label: 'Fully online', value: '1' },
+    { label: 'Hybrid (50% Online, 50% Offline)', value: '2' },
+    { label: 'Less than 50% online', value: '5' },
+    { label: 'More than 50% online', value: '6' },
 ]
 
 export const MetodOfStudy = () => {
@@ -30,18 +25,20 @@ export const MetodOfStudy = () => {
                 : [...prev, value]
 
             const url = new URL(window.location)
-            const params = new URLSearchParams(url.search)
+            const searchParams = new URLSearchParams(url.search)
 
-            if (newMethodOfStudy.length === 0) {
-                params.delete('methodOfStudy')
-            } else {
-                params.set('methodOfStudy', newMethodOfStudy.join(','))
-            }
+            // Clear the existing modStd[] parameters
+            searchParams.delete('modStd[]')
+
+            // Add the selected methods to modStd[] in the URL
+            newMethodOfStudy.forEach((method) => {
+                searchParams.append('modStd[]', method)
+            })
 
             window.history.pushState(
                 {},
                 '',
-                `${url.pathname}?${params.toString()}`
+                `${url.pathname}?${searchParams.toString()}`
             )
 
             return newMethodOfStudy
@@ -74,11 +71,11 @@ export const MetodOfStudy = () => {
     // Sync selected filters with URL params on page load
     useEffect(() => {
         const url = new URL(window.location)
-        const params = new URLSearchParams(url.search)
-        const methodOfStudyParam = params.get('methodOfStudy')
+        const searchParams = new URLSearchParams(url.search)
+        const methodOfStudyParams = searchParams.getAll('modStd[]')
 
-        if (methodOfStudyParam) {
-            setSelectedMetodsOfStudy(methodOfStudyParam.split(','))
+        if (methodOfStudyParams.length > 0) {
+            setSelectedMetodsOfStudy(methodOfStudyParams)
         }
     }, [params])
 
@@ -98,7 +95,7 @@ export const MetodOfStudy = () => {
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {learningMethods.map(({ label, value, count }) => (
+                        {learningMethods.map(({ label, value }) => (
                             <label
                                 key={value}
                                 className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -114,9 +111,6 @@ export const MetodOfStudy = () => {
                                     className="mr-2"
                                 />
                                 {label}
-                                <span className="ml-auto text-gray-500">
-                                    ({count})
-                                </span>
                             </label>
                         ))}
                     </div>

@@ -4,32 +4,42 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const studyFields = [
-    { label: 'Програмная инженерия', value: 'programming', count: 342 },
-    { label: 'Прикладная математика', value: 'math', count: 1588 },
-    { label: 'Искусство', value: 'art', count: 175 },
+    { label: 'Програмная инженерия', value: '1' },
+    { label: 'Прикладная математика', value: '2' },
+    { label: 'Искусство', value: '3' },
 ]
 
 export const FieldOfStudy = () => {
     const [isOpen, setIsOpen] = useState(false)
-    const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState(null)
+    const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState([])
     const filtersContainerRef = useRef(null)
     const params = useSearchParams()
 
-    // Handle selecting field of study and updating URL params
+    // Handle selecting/deselecting field of study and updating URL params
     const handleSelectFieldOfStudy = (value) => {
-        setSelectedFieldOfStudy(value)
+        setSelectedFieldOfStudy((prev) => {
+            const newSelection = prev.includes(value)
+                ? prev.filter((item) => item !== value)
+                : [...prev, value]
 
-        const url = new URL(window.location)
-        const params = new URLSearchParams(url.search)
+            const url = new URL(window.location)
+            const params = new URLSearchParams(url.search)
 
-        if (!value) {
-            params.delete('fieldOfStudy')
-        } else {
-            params.set('fieldOfStudy', value)
-        }
+            // Clear existing 'fos' parameters
+            params.delete('fos')
 
-        window.history.pushState({}, '', `${url.pathname}?${params.toString()}`)
-        setIsOpen(false)
+            // Add selected fields of study as 'fos' parameters
+            newSelection.forEach((item) => {
+                params.append('fos', item)
+            })
+
+            window.history.pushState(
+                {},
+                '',
+                `${url.pathname}?${params.toString()}`
+            )
+            return newSelection
+        })
     }
 
     // Toggle the filter dropdown visibility
@@ -59,9 +69,9 @@ export const FieldOfStudy = () => {
     useEffect(() => {
         const url = new URL(window.location)
         const params = new URLSearchParams(url.search)
-        const fieldOfStudyParam = params.get('fieldOfStudy')
+        const fieldOfStudyParam = params.getAll('fos')
 
-        if (fieldOfStudyParam) {
+        if (fieldOfStudyParam.length > 0) {
             setSelectedFieldOfStudy(fieldOfStudyParam)
         }
     }, [params])
@@ -74,23 +84,24 @@ export const FieldOfStudy = () => {
                     onClick={() => toggleFilter()}
                     className="w-full border rounded-lg px-4 py-2 flex justify-between items-center"
                 >
-                    {selectedFieldOfStudy
-                        ? selectedFieldOfStudy
+                    {selectedFieldOfStudy.length > 0
+                        ? `${selectedFieldOfStudy.length} выбрано`
                         : 'Выберите тип курса'}
                     <ChevronDown size={20} />
                 </button>
 
                 {isOpen && (
                     <div className="absolute z-10 w-full mt-2 bg-white border rounded-lg shadow-lg max-h-64 overflow-y-auto">
-                        {studyFields.map(({ label, value, count }) => (
+                        {studyFields.map(({ label, value }) => (
                             <label
                                 key={value}
                                 className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleSelectFieldOfStudy(label)}
+                                onClick={() => handleSelectFieldOfStudy(value)}
                             >
                                 {label}
                                 <span className="ml-auto text-gray-500">
-                                    ({count})
+                                    {selectedFieldOfStudy.includes(value) &&
+                                        '✔'}
                                 </span>
                             </label>
                         ))}

@@ -4,11 +4,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const startSemesters = [
-    { label: 'Летний семестр', value: 'summer', count: 350 },
-    { label: 'Зимний семестр', value: 'winter', count: 500 },
-    { label: 'Весенний семестр', value: 'spring', count: 200 },
-    { label: 'Осенний семестр', value: 'autumn', count: 600 },
-    { label: 'Гибкий старт', value: 'flexible', count: 150 },
+    { label: 'Летний семестр', value: '2' },
+    { label: 'Зимний семестр', value: '1' },
+    { label: 'Другие', value: '5' },
 ]
 
 export const Begining = () => {
@@ -27,11 +25,13 @@ export const Begining = () => {
             const url = new URL(window.location)
             const params = new URLSearchParams(url.search)
 
-            if (newBegining.length === 0) {
-                params.delete('begining')
-            } else {
-                params.set('begining', newBegining.join(','))
-            }
+            // Clear existing 'bgn[]' parameters
+            params.delete('bgn[]')
+
+            // Add selected semesters as 'bgn[]' parameters
+            newBegining.forEach((item) => {
+                params.append('bgn[]', item)
+            })
 
             window.history.pushState(
                 {},
@@ -70,10 +70,10 @@ export const Begining = () => {
     useEffect(() => {
         const url = new URL(window.location)
         const params = new URLSearchParams(url.search)
-        const beginingParam = params.get('begining')
+        const beginingParam = params.getAll('bgn[]')
 
-        if (beginingParam) {
-            setSelectedBegining(beginingParam.split(','))
+        if (beginingParam.length > 0) {
+            setSelectedBegining(beginingParam)
         }
     }, [searchParams])
 
@@ -105,9 +105,6 @@ export const Begining = () => {
                                     className="mr-2"
                                 />
                                 {label}
-                                <span className="ml-auto text-gray-500">
-                                    ({count})
-                                </span>
                             </label>
                         ))}
                     </div>

@@ -14,7 +14,7 @@ const Header = () => {
     }
 
     const handleSend = async () => {
-        const response = await gpt.post('gpt', { text: searchText })
+        const response = await gpt.post('gpt/', { text: searchText })
         if (response) {
             console.log('res: ', response)
         } else {
@@ -60,24 +60,24 @@ const Header = () => {
                 </div>
 
                 <div className="w-1/2 pl-7">
-                    <div className="relative flex gap-2">
-                        <input
-                            type="text"
-                            value={searchText}
-                            onChange={handleText}
-                            className="w-full px-3 pr-10 py-1 border rounded-[6px] focus:border-red-300 focus:outline-red-300"
-                            placeholder="умный поиск"
-                        />
-                        <Search className="absolute right-[85px] top-1/2 -translate-y-1/2 text-slate-600" />
-                        <button
-                            onClick={handleSend}
-                            className={
-                                'bg-foreground rounded-[4px] px-2 py-0.5 text-white font-medium md:hover:bg-inherit md:hover:outline-[2px] md:hover:outline outline-foreground duration-500 md:hover:text-gray-800'
-                            }
-                        >
-                            Поиск
-                        </button>
-                    </div>
+                    {/*<div className="relative flex gap-2">*/}
+                    {/*    <input*/}
+                    {/*        type="text"*/}
+                    {/*        value={searchText}*/}
+                    {/*        onChange={handleText}*/}
+                    {/*        className="w-full px-3 pr-10 py-1 border rounded-[6px] focus:border-red-300 focus:outline-red-300"*/}
+                    {/*        placeholder="умный поиск"*/}
+                    {/*    />*/}
+                    {/*    <Search className="absolute right-[85px] top-1/2 -translate-y-1/2 text-slate-600" />*/}
+                    {/*    <button*/}
+                    {/*        onClick={handleSend}*/}
+                    {/*        className={*/}
+                    {/*            'bg-foreground rounded-[4px] px-2 py-0.5 text-white font-medium md:hover:bg-inherit md:hover:outline-[2px] md:hover:outline outline-foreground duration-500 md:hover:text-gray-800'*/}
+                    {/*        }*/}
+                    {/*    >*/}
+                    {/*        Поиск*/}
+                    {/*    </button>*/}
+                    {/*</div>*/}
                 </div>
 
                 <div className="w-1/4 flex gap-1 items-center justify-end">
